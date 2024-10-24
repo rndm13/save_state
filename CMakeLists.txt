@@ -19,6 +19,9 @@ else()
     add_library(save_state src/save_state.hpp src/save_state.cpp)
 endif()
 
+target_include_directories(save_state PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/>)
+
+
 if (SAVE_STATE_BUILD_TESTS) 
     FetchContent_Declare(
       googletest
