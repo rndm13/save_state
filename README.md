@@ -57,4 +57,35 @@ struct TestData {
 };
 ```
 
-That's it!
+That's it! This makes it possible to serialize and deserialize your custom structs.
+Now if you want to write to or read from file you just do:
+
+```cpp
+    TestData td = {};
+
+    // Writing
+    // ==============
+
+    SaveState save{};
+    save.save(td);
+    save.finish_save();
+    if (!save.write(out)) {
+        Log(LogLevel::Error, "Failed to save");
+    }
+    
+
+    // Reading
+    // ==============
+    std::ifstream in(filename);
+    if (!in) {
+        Log(LogLevel::Error, "Failed to load user config in %s", filename.c_str());
+        return;
+    }
+
+    SaveState save{};
+    if (!save.read(in) || !save.load(td) || save.load_idx != save.original_size) {
+        Log(LogLevel::Error,
+            "Failed to read user config in '%s', likely file is invalid or size exceeds maximum",
+            filename.c_str());
+    }
+```
