@@ -18,7 +18,12 @@ TEST(save_state, load) {
     ss.finish_save();
     ss.reset_load();
 
-    TestData got = {};
+    TestData got = {
+        .id = "uuid",
+        .points = {},
+        .average_points = std::nullopt,
+        .dictionary = {},
+    };
     ASSERT_TRUE(ss.load(got));
     EXPECT_EQ(ss.load_idx, ss.original_size);
     EXPECT_EQ(input, got);

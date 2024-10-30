@@ -62,7 +62,10 @@ bool SaveState::write(std::ostream& os) const {
 bool SaveState::read(std::istream& is) {
     assert(is);
 
-    auto read_bytes = [&is](auto& val, size_t size = sizeof(val)) {
+    auto read_bytes = [&is](auto& val, size_t size = 0) {
+        if (size == 0) {
+            size = sizeof(val);
+        }
         is.read(reinterpret_cast<char*>(&val), size);
 
         return is && !is.eof();

@@ -9,6 +9,7 @@
 #include "unordered_map"
 #include "variant"
 #include "vector"
+#include "string_view"
 
 static constexpr std::string_view SAVE_STATE_FILE_HEADER = "SAVE_STATE";
 
@@ -20,17 +21,62 @@ static constexpr size_t SAVE_STATE_MAX_SIZE = 0x10000000;
 
 static constexpr size_t SAVE_STATE_LIB_VERSION = 0;
 
-#define PARENS ()
-#define EXPAND(...) EXPAND4(EXPAND4(EXPAND4(EXPAND4(__VA_ARGS__))))
-#define EXPAND4(...) EXPAND3(EXPAND3(EXPAND3(EXPAND3(__VA_ARGS__))))
-#define EXPAND3(...) EXPAND2(EXPAND2(EXPAND2(EXPAND2(__VA_ARGS__))))
-#define EXPAND2(...) EXPAND1(EXPAND1(EXPAND1(EXPAND1(__VA_ARGS__))))
-#define EXPAND1(...) __VA_ARGS__
+#define FE_CALLITn01(a,b)  a b
+#define FE_CALLITn02(a,b)  a b
+#define FE_CALLITn03(a,b)  a b 
+#define FE_CALLITn04(a,b)  a b
+#define FE_CALLITn04(a,b)  a b
+#define FE_CALLITn05(a,b)  a b
+#define FE_CALLITn06(a,b)  a b
+#define FE_CALLITn07(a,b)  a b
+#define FE_CALLITn08(a,b)  a b
+#define FE_CALLITn09(a,b)  a b
+#define FE_CALLITn10(a,b)  a b
+#define FE_CALLITn11(a,b)  a b
+#define FE_CALLITn12(a,b)  a b
+#define FE_CALLITn13(a,b)  a b
+#define FE_CALLITn14(a,b)  a b
+#define FE_CALLITn15(a,b)  a b
+#define FE_CALLITn16(a,b)  a b
+#define FE_CALLITn17(a,b)  a b
+#define FE_CALLITn18(a,b)  a b
+#define FE_CALLITn19(a,b)  a b
+#define FE_CALLITn20(a,b)  a b
+#define FE_CALLITn21(a,b)  a b
 
-#define FOR_EACH(macro, ...) __VA_OPT__(EXPAND(FOR_EACH_HELPER(macro, __VA_ARGS__)))
-#define FOR_EACH_HELPER(macro, a1, a2, ...)                                                        \
-    macro(a1, a2) __VA_OPT__(FOR_EACH_AGAIN PARENS(macro, __VA_ARGS__))
-#define FOR_EACH_AGAIN() FOR_EACH_HELPER
+/* the MSVC preprocessor expands __VA_ARGS__ as a single argument, so it needs
+ * to be expanded indirectly through the CALLIT macros.
+ * http://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
+ * http://stackoverflow.com/questions/21869917/visual-studio-va-args-issue
+ */
+#define FE_n00()
+#define FE_n01(what, a, b, ...)  what(a, b)
+#define FE_n02(what, a, b, ...)  what(a, b) FE_CALLITn02(FE_n01,(what, ##__VA_ARGS__))
+#define FE_n03(what, a, b, ...)  what(a, b) FE_CALLITn03(FE_n02,(what, ##__VA_ARGS__))
+#define FE_n04(what, a, b, ...)  what(a, b) FE_CALLITn04(FE_n03,(what, ##__VA_ARGS__))
+#define FE_n05(what, a, b, ...)  what(a, b) FE_CALLITn05(FE_n04,(what, ##__VA_ARGS__))
+#define FE_n06(what, a, b, ...)  what(a, b) FE_CALLITn06(FE_n05,(what, ##__VA_ARGS__))
+#define FE_n07(what, a, b, ...)  what(a, b) FE_CALLITn07(FE_n06,(what, ##__VA_ARGS__))
+#define FE_n08(what, a, b, ...)  what(a, b) FE_CALLITn08(FE_n07,(what, ##__VA_ARGS__))
+#define FE_n09(what, a, b, ...)  what(a, b) FE_CALLITn09(FE_n08,(what, ##__VA_ARGS__))
+#define FE_n10(what, a, b, ...)  what(a, b) FE_CALLITn10(FE_n09,(what, ##__VA_ARGS__))
+#define FE_n11(what, a, b, ...)  what(a, b) FE_CALLITn11(FE_n10,(what, ##__VA_ARGS__))
+#define FE_n12(what, a, b, ...)  what(a, b) FE_CALLITn12(FE_n11,(what, ##__VA_ARGS__))
+#define FE_n13(what, a, b, ...)  what(a, b) FE_CALLITn13(FE_n12,(what, ##__VA_ARGS__))
+#define FE_n14(what, a, b, ...)  what(a, b) FE_CALLITn14(FE_n13,(what, ##__VA_ARGS__))
+#define FE_n15(what, a, b, ...)  what(a, b) FE_CALLITn15(FE_n14,(what, ##__VA_ARGS__))
+#define FE_n16(what, a, b, ...)  what(a, b) FE_CALLITn16(FE_n15,(what, ##__VA_ARGS__))
+#define FE_n17(what, a, b, ...)  what(a, b) FE_CALLITn17(FE_n16,(what, ##__VA_ARGS__))
+#define FE_n18(what, a, b, ...)  what(a, b) FE_CALLITn18(FE_n17,(what, ##__VA_ARGS__))
+#define FE_n19(what, a, b, ...)  what(a, b) FE_CALLITn19(FE_n18,(what, ##__VA_ARGS__))
+#define FE_n20(what, a, b, ...)  what(a, b) FE_CALLITn20(FE_n19,(what, ##__VA_ARGS__))
+#define FE_n21(what, a, b, ...)  what(a, b) FE_CALLITn21(FE_n20,(what, ##__VA_ARGS__))
+#define FE_n22(...)           ERROR: FOR_EACH only supports up to 21 arguments
+
+#define FE_GET_MACRO(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,NAME,...) NAME
+#define FOR_EACH(what, ...) FE_CALLITn01(FE_GET_MACRO(_0, ((##__VA_ARGS__) / 2),FE_n22,FE_n21,FE_n20,FE_n19, \
+                            FE_n18,FE_n17,FE_n16,FE_n15,FE_n14,FE_n13,FE_n12,FE_n11,FE_n10,FE_n09,\
+                            FE_n08,FE_n07,FE_n06,FE_n05,FE_n04,FE_n03,FE_n02,FE_n01,FE_n00), (what, ##__VA_ARGS__))
 
 #define TRY_LOAD(...)                                                                              \
     if (!this->load(__VA_ARGS__)) {                                                                \

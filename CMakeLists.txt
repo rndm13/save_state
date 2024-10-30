@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(save_state)
 
+option(SAVE_STATE_BUILD_FUZZ_TESTS "Build fuzz tests for save state" false)
 option(SAVE_STATE_BUILD_TESTS "Build tests for save state" false)
 option(SAVE_STATE_BUILD_SHARED "Build save state as a shared library" false)
 
 include(FetchContent)
 
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if (!WIN32)
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wold-style-cast -Wcast-align -Wunused -Wconversion -Wuseless-cast -Wnull-dereference -Wlogical-op $<$<CONFIG:DEBUG>:-fsanitize=address,undefined,leak>")
