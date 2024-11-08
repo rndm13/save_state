@@ -173,9 +173,12 @@ struct SaveState {
     template <class T = void>
     void save(const char* ptr, size_t size = sizeof(T)) {
         assert(ptr);
-        if (this->buffer.capacity() < this->buffer.size() + size) {
-            this->buffer.reserve(this->buffer.capacity() * 2);
+
+        size_t new_capacity = this->buffer.capacity() == 0 ? 1 : this->buffer.capacity();
+        while (new_capacity < this->buffer.size() + size && new_capacity < SAVE_STATE_MAX_SIZE) {
+            new_capacity *= 2;
         }
+        this->buffer.reserve(new_capacity);
 
         size_t orig_size = this->buffer.size();
 
