@@ -73,10 +73,10 @@ static constexpr size_t SAVE_STATE_LIB_VERSION = 0;
 #define FE_n21(what, a, b, ...)  what(a, b) FE_CALLITn21(FE_n20,(what, ##__VA_ARGS__))
 #define FE_n22(...)           ERROR: FOR_EACH only supports up to 21 arguments
 
-#define FE_GET_MACRO(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,NAME,...) NAME
-#define FOR_EACH(what, ...) FE_CALLITn01(FE_GET_MACRO(_0, ((##__VA_ARGS__) / 2),FE_n22,FE_n21,FE_n20,FE_n19, \
-                            FE_n18,FE_n17,FE_n16,FE_n15,FE_n14,FE_n13,FE_n12,FE_n11,FE_n10,FE_n09,\
-                            FE_n08,FE_n07,FE_n06,FE_n05,FE_n04,FE_n03,FE_n02,FE_n01,FE_n00), (what, ##__VA_ARGS__))
+#define FE_GET_MACRO(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23,_24,_25,_26,_27,_28,_29,_30,_31,_32,_33,_34,_35,_36,_37,_38,_39,_40,_41,_42,_43,_44,NAME,...) NAME
+#define FOR_EACH(what, ...) FE_CALLITn01(FE_GET_MACRO(_0, ##__VA_ARGS__, FE_n22,FE_n22,FE_n21,FE_n21,FE_n20,FE_n20,FE_n19,FE_n19, \
+                            FE_n18,FE_n18,FE_n17,FE_n17,FE_n16,FE_n16,FE_n15,FE_n15,FE_n14,FE_n14,FE_n13,FE_n13,FE_n12,FE_n12,FE_n11,FE_n11,FE_n10,FE_n10,FE_n09,FE_n09,\
+                            FE_n08,FE_n08,FE_n07,FE_n07,FE_n06,FE_n06,FE_n05,FE_n05,FE_n04,FE_n04,FE_n03,FE_n03,FE_n02,FE_n02,FE_n01,FE_n01,FE_n00,FE_n00), (what, ##__VA_ARGS__))
 
 #define TRY_LOAD(...)                                                                              \
     if (!this->load(__VA_ARGS__)) {                                                                \
