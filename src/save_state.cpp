@@ -3,10 +3,41 @@
 #include "cstdint"
 #include "iostream"
 
+void SaveState::save_buf(const char* ptr, size_t size) {
+    assert(ptr);
+
+    size_t new_capacity = this->buffer.capacity() == 0 ? 1 : this->buffer.capacity();
+    while (new_capacity < this->buffer.size() + size && new_capacity < SAVE_STATE_MAX_SIZE) {
+        new_capacity *= 2;
+    }
+    this->buffer.reserve(new_capacity);
+
+    size_t orig_size = this->buffer.size();
+
+    this->buffer.resize(orig_size + size);
+
+    memcpy(this->buffer.data() + orig_size, ptr, size);
+}
+
+bool SaveState::load_buf(char* ptr, size_t size) {
+    assert(ptr);
+
+    if (this->load_idx + size > buffer.size()) {
+        return false;
+    }
+
+    const char* begin = this->buffer.data() + this->load_idx;
+
+    memcpy(ptr, begin, size);
+    this->load_idx += size;
+
+    return true;
+}
+
 void SaveState::save(const std::string& str) {
     size_t length = str.length();
-    this->save(reinterpret_cast<char*>(&length), sizeof(length));
-    this->save(str.data(), str.length());
+    this->save(length);
+    this->save_buf(str.data(), str.length());
     return;
 }
 
@@ -22,7 +53,9 @@ bool SaveState::load(std::string& str) {
         str.reserve(length);
         str.resize(length);
 
-        TRY_LOAD(str.data(), length);
+        if (!this->load_buf(str.data(), length)) {
+            return false;
+        }
     }
 
     return true;
@@ -48,7 +81,8 @@ bool SaveState::write(std::ostream& os) const {
 
     os.write(SAVE_STATE_FILE_HEADER.data(), SAVE_STATE_FILE_HEADER.size());
 
-    os.write(reinterpret_cast<const char*>(&this->save_lib_version), sizeof(this->save_lib_version));
+    os.write(
+        reinterpret_cast<const char*>(&this->save_lib_version), sizeof(this->save_lib_version));
     os.write(reinterpret_cast<const char*>(&this->save_version), sizeof(this->save_version));
 
     os.write(reinterpret_cast<const char*>(&this->original_size), sizeof(this->original_size));
@@ -97,5 +131,10 @@ bool SaveState::read(std::istream& is) {
 
     is.read(this->buffer.data(), static_cast<int32_t>(this->original_size));
 
+    return true;
+}
+
+void SaveState::save(const std::monostate&) {}
+bool SaveState::load(std::monostate&) {
     return true;
 }

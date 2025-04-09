@@ -5,150 +5,30 @@
 #include "cstring"
 #include "optional"
 #include "string"
+#include "string_view"
 #include "type_traits"
 #include "unordered_map"
 #include "variant"
 #include "vector"
-#include "string_view"
+#include <cstdint>
+#include <endian.h>
 
 static constexpr std::string_view SAVE_STATE_FILE_HEADER = "SAVE_STATE";
-
 static constexpr size_t SAVE_STATE_MAX_SIZE = 0x10000000;
+static constexpr size_t SAVE_STATE_LIB_VERSION = 1;
 
 #ifndef SAVE_STATE_VERSION
 #define SAVE_STATE_VERSION 0
 #endif
-
-static constexpr size_t SAVE_STATE_LIB_VERSION = 0;
-
-#define FE_CALLITn01(a,b)  a b
-#define FE_CALLITn02(a,b)  a b
-#define FE_CALLITn03(a,b)  a b 
-#define FE_CALLITn04(a,b)  a b
-#define FE_CALLITn04(a,b)  a b
-#define FE_CALLITn05(a,b)  a b
-#define FE_CALLITn06(a,b)  a b
-#define FE_CALLITn07(a,b)  a b
-#define FE_CALLITn08(a,b)  a b
-#define FE_CALLITn09(a,b)  a b
-#define FE_CALLITn10(a,b)  a b
-#define FE_CALLITn11(a,b)  a b
-#define FE_CALLITn12(a,b)  a b
-#define FE_CALLITn13(a,b)  a b
-#define FE_CALLITn14(a,b)  a b
-#define FE_CALLITn15(a,b)  a b
-#define FE_CALLITn16(a,b)  a b
-#define FE_CALLITn17(a,b)  a b
-#define FE_CALLITn18(a,b)  a b
-#define FE_CALLITn19(a,b)  a b
-#define FE_CALLITn20(a,b)  a b
-#define FE_CALLITn21(a,b)  a b
-
-/* the MSVC preprocessor expands __VA_ARGS__ as a single argument, so it needs
- * to be expanded indirectly through the CALLIT macros.
- * http://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
- * http://stackoverflow.com/questions/21869917/visual-studio-va-args-issue
- */
-#define FE_n00()
-#define FE_n01(what, a, b, ...)  what(a, b)
-#define FE_n02(what, a, b, ...)  what(a, b) FE_CALLITn02(FE_n01,(what, ##__VA_ARGS__))
-#define FE_n03(what, a, b, ...)  what(a, b) FE_CALLITn03(FE_n02,(what, ##__VA_ARGS__))
-#define FE_n04(what, a, b, ...)  what(a, b) FE_CALLITn04(FE_n03,(what, ##__VA_ARGS__))
-#define FE_n05(what, a, b, ...)  what(a, b) FE_CALLITn05(FE_n04,(what, ##__VA_ARGS__))
-#define FE_n06(what, a, b, ...)  what(a, b) FE_CALLITn06(FE_n05,(what, ##__VA_ARGS__))
-#define FE_n07(what, a, b, ...)  what(a, b) FE_CALLITn07(FE_n06,(what, ##__VA_ARGS__))
-#define FE_n08(what, a, b, ...)  what(a, b) FE_CALLITn08(FE_n07,(what, ##__VA_ARGS__))
-#define FE_n09(what, a, b, ...)  what(a, b) FE_CALLITn09(FE_n08,(what, ##__VA_ARGS__))
-#define FE_n10(what, a, b, ...)  what(a, b) FE_CALLITn10(FE_n09,(what, ##__VA_ARGS__))
-#define FE_n11(what, a, b, ...)  what(a, b) FE_CALLITn11(FE_n10,(what, ##__VA_ARGS__))
-#define FE_n12(what, a, b, ...)  what(a, b) FE_CALLITn12(FE_n11,(what, ##__VA_ARGS__))
-#define FE_n13(what, a, b, ...)  what(a, b) FE_CALLITn13(FE_n12,(what, ##__VA_ARGS__))
-#define FE_n14(what, a, b, ...)  what(a, b) FE_CALLITn14(FE_n13,(what, ##__VA_ARGS__))
-#define FE_n15(what, a, b, ...)  what(a, b) FE_CALLITn15(FE_n14,(what, ##__VA_ARGS__))
-#define FE_n16(what, a, b, ...)  what(a, b) FE_CALLITn16(FE_n15,(what, ##__VA_ARGS__))
-#define FE_n17(what, a, b, ...)  what(a, b) FE_CALLITn17(FE_n16,(what, ##__VA_ARGS__))
-#define FE_n18(what, a, b, ...)  what(a, b) FE_CALLITn18(FE_n17,(what, ##__VA_ARGS__))
-#define FE_n19(what, a, b, ...)  what(a, b) FE_CALLITn19(FE_n18,(what, ##__VA_ARGS__))
-#define FE_n20(what, a, b, ...)  what(a, b) FE_CALLITn20(FE_n19,(what, ##__VA_ARGS__))
-#define FE_n21(what, a, b, ...)  what(a, b) FE_CALLITn21(FE_n20,(what, ##__VA_ARGS__))
-#define FE_n22(...)           ERROR: FOR_EACH only supports up to 21 arguments
-
-#define FE_GET_MACRO(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23,_24,_25,_26,_27,_28,_29,_30,_31,_32,_33,_34,_35,_36,_37,_38,_39,_40,_41,_42,_43,_44,NAME,...) NAME
-#define FOR_EACH(what, ...) FE_CALLITn01(FE_GET_MACRO(_0, ##__VA_ARGS__, FE_n22,FE_n22,FE_n21,FE_n21,FE_n20,FE_n20,FE_n19,FE_n19, \
-                            FE_n18,FE_n18,FE_n17,FE_n17,FE_n16,FE_n16,FE_n15,FE_n15,FE_n14,FE_n14,FE_n13,FE_n13,FE_n12,FE_n12,FE_n11,FE_n11,FE_n10,FE_n10,FE_n09,FE_n09,\
-                            FE_n08,FE_n08,FE_n07,FE_n07,FE_n06,FE_n06,FE_n05,FE_n05,FE_n04,FE_n04,FE_n03,FE_n03,FE_n02,FE_n02,FE_n01,FE_n01,FE_n00,FE_n00), (what, ##__VA_ARGS__))
-
-#define TRY_LOAD(...)                                                                              \
-    if (!this->load(__VA_ARGS__)) {                                                                \
-        return false;                                                                              \
-    }
-
-#define SAVE_STATE_SAVE_FIELD(field_name, version)                                                 \
-    if (version <= 0 || ss.save_version >= version) {                                              \
-        ss.save(this->field_name);                                                                 \
-    }
-
-#define SAVE_STATE_LOAD_FIELD(field_name, version)                                                 \
-    {                                                                                              \
-        if (version <= 0 || ss.save_version >= version) {                                          \
-            if (!ss.load(this->field_name)) {                                                      \
-                return false;                                                                      \
-            }                                                                                      \
-        }                                                                                          \
-    }
-
-#define SAVE_STATE_RECOVER_LOAD_FIELD(field_name, version)                                         \
-    {                                                                                              \
-        if (version <= 0 || ss.save_version >= version) {                                          \
-            if (!ss.load(this->field_name)) {                                                      \
-                this->recover();                                                                   \
-                return false;                                                                      \
-            }                                                                                      \
-        }                                                                                          \
-    }
-
-#define SAVE_STATE_SAVE_IMPL(...)                                                                  \
-    inline void save(SaveState& ss) const {                                                        \
-        FOR_EACH(SAVE_STATE_SAVE_FIELD, __VA_ARGS__)                                               \
-    }                                                                                              \
-    inline bool load(SaveState& ss) {                                                              \
-        FOR_EACH(SAVE_STATE_LOAD_FIELD, __VA_ARGS__)                                               \
-        return true;                                                                               \
-    }
-
-#define SAVE_STATE_RECOVER_SAVE_IMPL(...)                                                          \
-    inline void save(SaveState& ss) const {                                                        \
-        FOR_EACH(SAVE_STATE_SAVE_FIELD, __VA_ARGS__)                                               \
-    }                                                                                              \
-    inline bool load(SaveState& ss) {                                                              \
-        FOR_EACH(SAVE_STATE_LOAD_FIELD, __VA_ARGS__)                                               \
-        return true;                                                                               \
-    }
-
-#define SAVE_STATE_DEF_PRE_SAVE_FIELD(field_type, field_name)                                      \
-    static std::optional<field_type> __pre_save_##field_name = std::nullopt;
-
-#define SAVE_STATE_RECOVER_FIELD(field_type, field_name)                                           \
-    if (__pre_save_##field_name.has_value()) {                                                     \
-        this->field_name = __pre_save_##field_name.value();                                        \
-        __pre_save_##field_name = std::nullopt;                                                    \
-    } else {                                                                                       \
-        __pre_save_##field_name = this->field_name;                                                \
-    }
-
-#define SAVE_STATE_POST_LOAD_FIELD(field_type, field_name) __pre_save_##field_name = std::nullopt;
-
-#define SAVE_STATE_RECOVER_IMPL(...)                                                               \
-    inline void recover() {                                                                        \
-        FOR_EACH(SAVE_STATE_DEF_PRE_SAVE_FIELD, __VA_ARGS__)                                       \
-        FOR_EACH(SAVE_STATE_RECOVER_FIELD, __VA_ARGS__)                                            \
-    }
 
 namespace details {
 template <class Variant>
 constexpr bool valid_variant_from_index(size_t index) {
     return index < std::variant_size_v<Variant>;
 }
+
+template <class T>
+static constexpr auto is_numeric = std::is_integral<T>::value || std::is_floating_point<T>::value;
 
 template <class Variant, size_t I = 0>
 constexpr std::optional<Variant> variant_from_index(size_t index) {
@@ -159,7 +39,44 @@ constexpr std::optional<Variant> variant_from_index(size_t index) {
 
     return std::nullopt;
 }
+
+template <size_t size>
+void htobe(char* arr) {
+    if constexpr (size == 2) {
+        uint16_t* num = reinterpret_cast<uint16_t*>(arr);
+        *num = htobe16(*num);
+    }
+    if constexpr (size == 4) {
+        uint32_t* num = reinterpret_cast<uint32_t*>(arr);
+        *num = htobe32(*num);
+    }
+    if constexpr (size == 8) {
+        uint64_t* num = reinterpret_cast<uint64_t*>(arr);
+        *num = htobe64(*num);
+    }
+}
+
+template <size_t size>
+void betoh(char* arr) {
+    if constexpr (size == 2) {
+        uint16_t* num = reinterpret_cast<uint16_t*>(arr);
+        *num = be16toh(*num);
+    }
+    if constexpr (size == 4) {
+        uint32_t* num = reinterpret_cast<uint32_t*>(arr);
+        *num = be32toh(*num);
+    }
+    if constexpr (size == 8) {
+        uint64_t* num = reinterpret_cast<uint64_t*>(arr);
+        *num = be64toh(*num);
+    }
+}
 }; // namespace details
+
+#define TRY_LOAD(...)                                                                              \
+    if (!this->load(__VA_ARGS__)) {                                                                \
+        return false;                                                                              \
+    }
 
 struct SaveState {
     size_t save_lib_version = SAVE_STATE_LIB_VERSION;
@@ -170,56 +87,50 @@ struct SaveState {
     std::vector<char> buffer;
 
     // Helpers
-    template <class T = void>
-    void save(const char* ptr, size_t size = sizeof(T)) {
-        assert(ptr);
+    void save_buf(const char* ptr, size_t size);
+    bool load_buf(char* ptr, size_t size);
 
-        size_t new_capacity = this->buffer.capacity() == 0 ? 1 : this->buffer.capacity();
-        while (new_capacity < this->buffer.size() + size && new_capacity < SAVE_STATE_MAX_SIZE) {
-            new_capacity *= 2;
-        }
-        this->buffer.reserve(new_capacity);
-
-        size_t orig_size = this->buffer.size();
-
-        this->buffer.resize(orig_size + size);
-
-        memcpy(this->buffer.data() + orig_size, ptr, size);
+    // Keep the numbers in files in big endian
+    template <class T, std::enable_if_t<details::is_numeric<T>, int> = 0>
+    void save(T number) {
+        char buf[sizeof(T)] = {0};
+        *reinterpret_cast<T*>(&buf) = number;
+        details::htobe<sizeof(T)>(buf);
+        this->save_buf(buf, sizeof(T));
     }
 
-    template <class T = void>
-    bool load(char* ptr, size_t size = sizeof(T)) {
-        assert(ptr);
-
-        if (this->load_idx + size > buffer.size()) {
+    template <class T, std::enable_if_t<details::is_numeric<T>, int> = 0>
+    bool load(T& number) {
+        char buf[sizeof(T)] = {0};
+        if (!this->load_buf(buf, sizeof(T))) {
             return false;
         }
-
-        const char* begin = this->buffer.data() + this->load_idx;
-
-        memcpy(ptr, begin, size);
-        this->load_idx += size;
-
+        if (this->save_lib_version >= 1) {
+            details::betoh<sizeof(T)>(buf);
+        }
+        number = *reinterpret_cast<T*>(buf);
         return true;
     }
 
-    template <class T, std::enable_if_t<std::is_trivially_copyable<T>::value, int> = 0>
+    template <
+        class T,
+        std::enable_if_t<std::is_trivially_copyable<T>::value && !details::is_numeric<T>, int> = 0>
     void save(T trivial) {
-        this->save<T>(reinterpret_cast<char*>(&trivial));
+        this->save_buf(reinterpret_cast<char*>(&trivial), sizeof(T));
     }
 
-    template <class T, std::enable_if_t<std::is_trivially_copyable<T>::value, int> = 0>
+    template <
+        class T,
+        std::enable_if_t<std::is_trivially_copyable<T>::value && !details::is_numeric<T>, int> = 0>
     bool load(T& trivial) {
-        return this->load(reinterpret_cast<char*>(&trivial), sizeof(T));
+        return this->load_buf(reinterpret_cast<char*>(&trivial), sizeof(T));
     }
 
     void save(const std::string& str);
     bool load(std::string& str);
 
-    void save(const std::monostate&) {}
-    bool load(std::monostate&) {
-        return true;
-    }
+    void save(const std::monostate&);
+    bool load(std::monostate&);
 
     template <class T>
     void save(const std::optional<T>& opt) {
@@ -361,7 +272,7 @@ struct UndoHistory {
     size_t undo_idx = 0;
     std::vector<SaveState> undo_history = {};
 
-    // should be called after every edit
+    // Should be called after every edit
     template <class T>
     void push_undo_history(const T& obj) {
         assert(obj);
@@ -437,3 +348,222 @@ struct UndoHistory {
     UndoHistory& operator=(const UndoHistory&) = default;
     UndoHistory& operator=(UndoHistory&&) = default;
 };
+
+// Very scary macroes...
+
+#define FE_CALLITn01(a, b) a b
+#define FE_CALLITn02(a, b) a b
+#define FE_CALLITn03(a, b) a b
+#define FE_CALLITn04(a, b) a b
+#define FE_CALLITn04(a, b) a b
+#define FE_CALLITn05(a, b) a b
+#define FE_CALLITn06(a, b) a b
+#define FE_CALLITn07(a, b) a b
+#define FE_CALLITn08(a, b) a b
+#define FE_CALLITn09(a, b) a b
+#define FE_CALLITn10(a, b) a b
+#define FE_CALLITn11(a, b) a b
+#define FE_CALLITn12(a, b) a b
+#define FE_CALLITn13(a, b) a b
+#define FE_CALLITn14(a, b) a b
+#define FE_CALLITn15(a, b) a b
+#define FE_CALLITn16(a, b) a b
+#define FE_CALLITn17(a, b) a b
+#define FE_CALLITn18(a, b) a b
+#define FE_CALLITn19(a, b) a b
+#define FE_CALLITn20(a, b) a b
+#define FE_CALLITn21(a, b) a b
+
+/* the MSVC preprocessor expands __VA_ARGS__ as a single argument, so it needs
+ * to be expanded indirectly through the CALLIT macros.
+ * http://connect.microsoft.com/VisualStudio/feedback/details/380090/variadic-macro-replacement
+ * http://stackoverflow.com/questions/21869917/visual-studio-va-args-issue
+ */
+#define FE_n00()
+#define FE_n01(what, a, b, ...) what(a, b)
+#define FE_n02(what, a, b, ...) what(a, b) FE_CALLITn02(FE_n01, (what, ##__VA_ARGS__))
+#define FE_n03(what, a, b, ...) what(a, b) FE_CALLITn03(FE_n02, (what, ##__VA_ARGS__))
+#define FE_n04(what, a, b, ...) what(a, b) FE_CALLITn04(FE_n03, (what, ##__VA_ARGS__))
+#define FE_n05(what, a, b, ...) what(a, b) FE_CALLITn05(FE_n04, (what, ##__VA_ARGS__))
+#define FE_n06(what, a, b, ...) what(a, b) FE_CALLITn06(FE_n05, (what, ##__VA_ARGS__))
+#define FE_n07(what, a, b, ...) what(a, b) FE_CALLITn07(FE_n06, (what, ##__VA_ARGS__))
+#define FE_n08(what, a, b, ...) what(a, b) FE_CALLITn08(FE_n07, (what, ##__VA_ARGS__))
+#define FE_n09(what, a, b, ...) what(a, b) FE_CALLITn09(FE_n08, (what, ##__VA_ARGS__))
+#define FE_n10(what, a, b, ...) what(a, b) FE_CALLITn10(FE_n09, (what, ##__VA_ARGS__))
+#define FE_n11(what, a, b, ...) what(a, b) FE_CALLITn11(FE_n10, (what, ##__VA_ARGS__))
+#define FE_n12(what, a, b, ...) what(a, b) FE_CALLITn12(FE_n11, (what, ##__VA_ARGS__))
+#define FE_n13(what, a, b, ...) what(a, b) FE_CALLITn13(FE_n12, (what, ##__VA_ARGS__))
+#define FE_n14(what, a, b, ...) what(a, b) FE_CALLITn14(FE_n13, (what, ##__VA_ARGS__))
+#define FE_n15(what, a, b, ...) what(a, b) FE_CALLITn15(FE_n14, (what, ##__VA_ARGS__))
+#define FE_n16(what, a, b, ...) what(a, b) FE_CALLITn16(FE_n15, (what, ##__VA_ARGS__))
+#define FE_n17(what, a, b, ...) what(a, b) FE_CALLITn17(FE_n16, (what, ##__VA_ARGS__))
+#define FE_n18(what, a, b, ...) what(a, b) FE_CALLITn18(FE_n17, (what, ##__VA_ARGS__))
+#define FE_n19(what, a, b, ...) what(a, b) FE_CALLITn19(FE_n18, (what, ##__VA_ARGS__))
+#define FE_n20(what, a, b, ...) what(a, b) FE_CALLITn20(FE_n19, (what, ##__VA_ARGS__))
+#define FE_n21(what, a, b, ...) what(a, b) FE_CALLITn21(FE_n20, (what, ##__VA_ARGS__))
+#define FE_n22(...)                                                                                \
+    ERROR:                                                                                         \
+    FOR_EACH only supports up to 21 arguments
+
+#define FE_GET_MACRO(                                                                              \
+    _0,                                                                                            \
+    _1,                                                                                            \
+    _2,                                                                                            \
+    _3,                                                                                            \
+    _4,                                                                                            \
+    _5,                                                                                            \
+    _6,                                                                                            \
+    _7,                                                                                            \
+    _8,                                                                                            \
+    _9,                                                                                            \
+    _10,                                                                                           \
+    _11,                                                                                           \
+    _12,                                                                                           \
+    _13,                                                                                           \
+    _14,                                                                                           \
+    _15,                                                                                           \
+    _16,                                                                                           \
+    _17,                                                                                           \
+    _18,                                                                                           \
+    _19,                                                                                           \
+    _20,                                                                                           \
+    _21,                                                                                           \
+    _22,                                                                                           \
+    _23,                                                                                           \
+    _24,                                                                                           \
+    _25,                                                                                           \
+    _26,                                                                                           \
+    _27,                                                                                           \
+    _28,                                                                                           \
+    _29,                                                                                           \
+    _30,                                                                                           \
+    _31,                                                                                           \
+    _32,                                                                                           \
+    _33,                                                                                           \
+    _34,                                                                                           \
+    _35,                                                                                           \
+    _36,                                                                                           \
+    _37,                                                                                           \
+    _38,                                                                                           \
+    _39,                                                                                           \
+    _40,                                                                                           \
+    _41,                                                                                           \
+    _42,                                                                                           \
+    _43,                                                                                           \
+    _44,                                                                                           \
+    NAME,                                                                                          \
+    ...)                                                                                           \
+    NAME
+#define FOR_EACH(what, ...)                                                                        \
+    FE_CALLITn01(                                                                                  \
+        FE_GET_MACRO(                                                                              \
+            _0,                                                                                    \
+            ##__VA_ARGS__,                                                                         \
+            FE_n22,                                                                                \
+            FE_n22,                                                                                \
+            FE_n21,                                                                                \
+            FE_n21,                                                                                \
+            FE_n20,                                                                                \
+            FE_n20,                                                                                \
+            FE_n19,                                                                                \
+            FE_n19,                                                                                \
+            FE_n18,                                                                                \
+            FE_n18,                                                                                \
+            FE_n17,                                                                                \
+            FE_n17,                                                                                \
+            FE_n16,                                                                                \
+            FE_n16,                                                                                \
+            FE_n15,                                                                                \
+            FE_n15,                                                                                \
+            FE_n14,                                                                                \
+            FE_n14,                                                                                \
+            FE_n13,                                                                                \
+            FE_n13,                                                                                \
+            FE_n12,                                                                                \
+            FE_n12,                                                                                \
+            FE_n11,                                                                                \
+            FE_n11,                                                                                \
+            FE_n10,                                                                                \
+            FE_n10,                                                                                \
+            FE_n09,                                                                                \
+            FE_n09,                                                                                \
+            FE_n08,                                                                                \
+            FE_n08,                                                                                \
+            FE_n07,                                                                                \
+            FE_n07,                                                                                \
+            FE_n06,                                                                                \
+            FE_n06,                                                                                \
+            FE_n05,                                                                                \
+            FE_n05,                                                                                \
+            FE_n04,                                                                                \
+            FE_n04,                                                                                \
+            FE_n03,                                                                                \
+            FE_n03,                                                                                \
+            FE_n02,                                                                                \
+            FE_n02,                                                                                \
+            FE_n01,                                                                                \
+            FE_n01,                                                                                \
+            FE_n00,                                                                                \
+            FE_n00),                                                                               \
+        (what, ##__VA_ARGS__))
+
+#define SAVE_STATE_SAVE_FIELD(field_name, version)                                                 \
+    if (version <= 0 || ss.save_version >= version) {                                              \
+        ss.save(this->field_name);                                                                 \
+    }
+
+#define SAVE_STATE_LOAD_FIELD(field_name, version)                                                 \
+    {                                                                                              \
+        if (version <= 0 || ss.save_version >= version) {                                          \
+            if (!ss.load(this->field_name)) {                                                      \
+                return false;                                                                      \
+            }                                                                                      \
+        }                                                                                          \
+    }
+
+#define SAVE_STATE_RECOVER_LOAD_FIELD(field_name, version)                                         \
+    {                                                                                              \
+        if (version <= 0 || ss.save_version >= version) {                                          \
+            if (!ss.load(this->field_name)) {                                                      \
+                this->recover();                                                                   \
+                return false;                                                                      \
+            }                                                                                      \
+        }                                                                                          \
+    }
+
+#define SAVE_STATE_SAVE_IMPL(...)                                                                  \
+    inline void save(SaveState& ss) const {                                                        \
+        FOR_EACH(SAVE_STATE_SAVE_FIELD, __VA_ARGS__)                                               \
+    }                                                                                              \
+    inline bool load(SaveState& ss) {                                                              \
+        FOR_EACH(SAVE_STATE_LOAD_FIELD, __VA_ARGS__)                                               \
+        return true;                                                                               \
+    }
+
+#define SAVE_STATE_RECOVER_SAVE_IMPL(...)                                                          \
+    inline void save(SaveState& ss) const {                                                        \
+        FOR_EACH(SAVE_STATE_SAVE_FIELD, __VA_ARGS__)                                               \
+    }                                                                                              \
+    inline bool load(SaveState& ss) {                                                              \
+        FOR_EACH(SAVE_STATE_LOAD_FIELD, __VA_ARGS__)                                               \
+        return true;                                                                               \
+    }
+
+#define SAVE_STATE_DEF_PRE_SAVE_FIELD(field_type, field_name)                                      \
+    static std::optional<field_type> __pre_save_##field_name = std::nullopt;
+
+#define SAVE_STATE_RECOVER_FIELD(field_type, field_name)                                           \
+    if (__pre_save_##field_name.has_value()) {                                                     \
+        this->field_name = __pre_save_##field_name.value();                                        \
+        __pre_save_##field_name = std::nullopt;                                                    \
+    } else {                                                                                       \
+        __pre_save_##field_name = this->field_name;                                                \
+    }
+
+#define SAVE_STATE_POST_LOAD_FIELD(field_type, field_name) __pre_save_##field_name = std::nullopt;
+
+#define SAVE_STATE_RECOVER_IMPL(...)                                                               \
+    inline void recover() {                                                                        \
+        FOR_EACH(SAVE_STATE_DEF_PRE_SAVE_FIELD, __VA_ARGS__)                                       \
+        FOR_EACH(SAVE_STATE_RECOVER_FIELD, __VA_ARGS__)                                            \
+    }

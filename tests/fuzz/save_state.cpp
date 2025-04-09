@@ -7,7 +7,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
     TestData td = {};
     SaveState save = {};
 
-    save.save(reinterpret_cast<const char*>(Data), Size);
+    save.save_buf(reinterpret_cast<const char*>(Data), Size);
     save.finish_save();
     save.reset_load();
 
