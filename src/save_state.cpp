@@ -2,6 +2,7 @@
 #include "cassert"
 #include "cstdint"
 #include "iostream"
+#include <endian.h>
 
 void SaveState::save_buf(const char* ptr, size_t size) {
     assert(ptr);
@@ -81,11 +82,14 @@ bool SaveState::write(std::ostream& os) const {
 
     os.write(SAVE_STATE_FILE_HEADER.data(), SAVE_STATE_FILE_HEADER.size());
 
-    os.write(
-        reinterpret_cast<const char*>(&this->save_lib_version), sizeof(this->save_lib_version));
-    os.write(reinterpret_cast<const char*>(&this->save_version), sizeof(this->save_version));
+    size_t slv = htobe64(this->save_lib_version);
+    os.write(reinterpret_cast<const char*>(&slv), sizeof(slv));
 
-    os.write(reinterpret_cast<const char*>(&this->original_size), sizeof(this->original_size));
+    size_t sv = htobe64(this->save_version);
+    os.write(reinterpret_cast<const char*>(&sv), sizeof(sv));
+
+    size_t osz = htobe64(this->original_size);
+    os.write(reinterpret_cast<const char*>(&osz), sizeof(osz));
 
     os.write(this->buffer.data(), static_cast<int32_t>(this->buffer.size()));
     os.flush();
@@ -116,12 +120,17 @@ bool SaveState::read(std::istream& is) {
     if (!read_bytes(this->save_lib_version)) {
         return false;
     }
+    this->save_lib_version = be64toh(this->save_lib_version);
+
     if (!read_bytes(this->save_version)) {
         return false;
     }
+    this->save_version = be64toh(this->save_version);
+
     if (!read_bytes(this->original_size)) {
         return false;
     }
+    this->original_size = be64toh(this->original_size);
     if (this->original_size > SAVE_STATE_MAX_SIZE || this->original_size <= 0) {
         return false;
     }
